@@ -1,127 +1,92 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Laiterekisteri
+// Yliluokka Device, joka sisältää yhteiset ominaisuudet kaikille laitteille
+class Device
 {
-    // Base class for devices
-    class Device
+    public string Hankintapäivä { get; set; }
+    public double Hankintahinta { get; set; }
+    public int TakuuaikaKuukausina { get; set; }
+
+    // Konstruktori, joka alustaa yhteiset ominaisuudet
+    public Device(string hankintapäivä, double hankintahinta, int takuuaikaKuukausina)
     {
-        // Fields
-        // ------
-        string identity = "Uusi laite";
-        string dateBought = "1.1.2000";
-        double price = 0.00d;
-        int warranty = 12;
-
-        // Properties
-        // ----------
-        public string Identity
-        { 
-            get { return identity; }
-            set { identity = value; }   
-            
-        }
-       
-        public string DateBought
-        {
-            get { return dateBought; }
-            set { dateBought = value; }
-        }
-
-        public double Price
-        {
-            get { return price; }
-            set { price = value; }
-        }
-
-        public int Warranty
-        {
-            get { return warranty; }
-            set { warranty = value; }
-        }
-
-        // Constructors
-        // ------------
-
-        public Device()
-        {
-
-        }
-        // A constructor with one argument
-        public Device(string identity)
-        {
-            this.identity = identity;
-        }
-
-        // Another constructor with all arguments
-        public Device(string identity, string dateBought, double price, int warranty)
-        {
-            this.identity = identity;
-            this.dateBought = dateBought;
-            this.price = price;
-            this.warranty = warranty;
-        }
-
-        // Other methods
-        // -------------
+        Hankintapäivä = hankintapäivä;
+        Hankintahinta = hankintahinta;
+        TakuuaikaKuukausina = takuuaikaKuukausina;
     }
 
-    // Class for computers, inherits Device class
-    class Computer : Device
+    // Metodi jäljellä olevan takuuajan selvittämiseksi
+    public int JäljelläOlevaTakuuaikaKuukausina()
     {
+        // Päivämäärän muuntaminen merkkijonosta DateTime-muotoon
+        DateTime hankintapäivä = DateTime.Parse(Hankintapäivä);
+        // Lisätään takuuaika hankintapäivään
+        DateTime takuunPäättymispäivä = hankintapäivä.AddMonths(TakuuaikaKuukausina);
+        // Etsitään ero nykyisen päivämäärän ja takuun päättymispäivän välillä kuukausina
+        int jäljelläOlevaTakuuaika = (int)((takuunPäättymispäivä - DateTime.Now).TotalDays / 30);
 
+        // Jos takuu on päättynyt, palauta 0
+        if (jäljelläOlevaTakuuaika < 0)
+            return 0;
+
+        return jäljelläOlevaTakuuaika;
     }
+}
 
-    // Class for computers, inherits Device class
-    class SmartPhone : Device
+// Luokka tietokoneille, periytetään Device-luokasta
+class Computer : Device
+{
+    // Lisätään tietokoneille omia ominaisuuksia tarpeen mukaan
+    public string Processor { get; set; }
+
+    public Computer(string hankintapäivä, double hankintahinta, int takuuaikaKuukausina, string processor)
+        : base(hankintapäivä, hankintahinta, takuuaikaKuukausina)
     {
-        // Fields
-
-        // Properties
-
-        // Constructors
-
-        // Other methods
+        Processor = processor;
     }
+}
 
-    // Class for computers, inherits Device class
-    class Tablet : Device
+// Luokka puhelimille, periytetään Device-luokasta
+class Phone : Device
+{
+    // Lisätään puhelimille omia ominaisuuksia tarpeen mukaan
+    public string OperatingSystem { get; set; }
+
+    public Phone(string hankintapäivä, double hankintahinta, int takuuaikaKuukausina, string operatingSystem)
+        : base(hankintapäivä, hankintahinta, takuuaikaKuukausina)
     {
-        // Fields
-
-        // Properties
-
-        // Constructors
-
-        // Other methods
+        OperatingSystem = operatingSystem;
     }
-    internal class Program
+}
+
+// Luokka tableteille, periytetään Device-luokasta
+class Tablet : Device
+{
+    // Lisätään tableteille omia ominaisuuksia tarpeen mukaan
+    public string Model { get; set; }
+
+    public Tablet(string hankintapäivä, double hankintahinta, int takuuaikaKuukausina, string model)
+        : base(hankintapäivä, hankintahinta, takuuaikaKuukausina)
     {
-        static void Main(string[] args)
-        {
-            // Let's create an test object from the Device class with default constructor (0 parameters)
-            Device device1 = new Device();
-            Console.WriteLine(device1.Identity);
+        Model = model;
+    }
+}
 
-            // Let's create another device with identity parameter
-            Device device2 = new Device("Toinen laite");
-            Console.WriteLine(device2.Identity);
+class Program
+{
+    static void Main(string[] args)
+    {
+        // Luodaan esimerkki tietokoneesta
+        Computer computer = new Computer("2022-01-01", 999.99, 24, "Intel i7");
 
-            // Set device2 warranty to 60 months
-            device2.Warranty = 60;
+        // Tulostetaan tietokoneen tiedot ja jäljellä oleva takuuaika
+        Console.WriteLine("Tietokoneen tiedot:");
+        Console.WriteLine("Hankintapäivä: " + computer.Hankintapäivä);
+        Console.WriteLine("Hankintahinta: " + computer.Hankintahinta);
+        Console.WriteLine("Takuuaika kuukausina: " + computer.TakuuaikaKuukausina);
+        Console.WriteLine("Prosessori: " + computer.Processor);
+        Console.WriteLine("Jäljellä oleva takuuaika kuukausina: " + computer.JäljelläOlevaTakuuaikaKuukausina());
 
-            Console.WriteLine("Takuutiedoksi päivitetty: " + device2.Warranty);
-
-            // Let's create one more device with all parameters
-            Device device3 = new Device("Kolmas kone", "8.2.2024", 150.00d, 36);
-
-            Console.WriteLine(device3.Identity);
-            Console.WriteLine(device3.Price);
-
-            Console.ReadLine();
-        }
+        // Voit luoda vastaavasti puhelimille ja tableteille omat esimerkit ja tulostukset
     }
 }
